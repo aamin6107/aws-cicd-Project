@@ -1,6 +1,37 @@
-name: CI-CD
+\name: CI/CD Deploy
 
 on:
   push:
     branches:
       - main
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Deploy to EC2
+        uses: appleboy/ssh-action@v1.0.3
+
+        with:
+          host: ${{ secrets.EC2_HOST }}
+          username: ${{ secrets.EC2_USER }}
+          key: ${{ secrets.EC2_KEY }}
+
+          script: |
+            cd /home/ubuntu
+
+            if [ ! -d "aws-cicd-Project" ]; then
+              git clone https://github.com/aamin6107/aws-cicd-Project.git
+            fi
+
+            cd aws-cicd-Project
+
+            git pull origin main
+
+            docker stop website || true
+            docker rm website || true
+
+            docker build -t aws-cicd-project .
+
+            docker run -d --name website -p 80:80 aws-cicd-project
