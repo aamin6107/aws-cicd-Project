@@ -18,29 +18,30 @@ jobs:
           username: ${{ secrets.EC2_USER }}
           key: ${{ secrets.EC2_KEY }}
 
-          script: |
-            sudo git config --global --add safe.directory /home/ubuntu/aws-cicd-Project
+         script: |
+  git config --global --add safe.directory '*'
 
-            cd /home/ubuntu
+  cd /home/ubuntu
 
-            if [ ! -d "aws-cicd-Project" ]; then
-              git clone https://github.com/aamin6107/aws-cicd-Project.git
-            fi
+  if [ ! -d "aws-cicd-Project" ]; then
+    git clone https://github.com/aamin6107/aws-cicd-Project.git
+  fi
 
-            cd aws-cicd-Project
+  cd aws-cicd-Project
 
-            git pull origin main
+  git fetch origin
+  git reset --hard origin/main
 
-            sudo docker stop website || true
-            sudo docker rm website || true
-            sudo docker rmi aws-cicd-project || true
+  sudo docker stop website || true
+  sudo docker rm website || true
+  sudo docker rmi aws-cicd-project || true
 
-            sudo docker build -t aws-cicd-project .
+  sudo docker build --no-cache -t aws-cicd-project .
 
-            sudo docker run -d \
-              --name website \
-              -p 80:80 \
-              --restart unless-stopped \
-              aws-cicd-project
+  sudo docker run -d \
+    --name website \
+    -p 80:80 \
+    --restart unless-stopped \
+    aws-cicd-project
 
-            sudo docker ps
+  sudo docker ps
