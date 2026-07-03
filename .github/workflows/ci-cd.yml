@@ -19,19 +19,21 @@ jobs:
           key: ${{ secrets.EC2_KEY }}
 
           script: |
-            cd /home/ubuntu
+  git config --global --add safe.directory /home/ubuntu/aws-cicd-Project
 
-            if [ ! -d "aws-cicd-Project" ]; then
-              git clone https://github.com/aamin6107/aws-cicd-Project.git
-            fi
+  cd /home/ubuntu
 
-            cd aws-cicd-Project
+  if [ ! -d "aws-cicd-Project" ]; then
+    git clone https://github.com/aamin6107/aws-cicd-Project.git
+  fi
 
-            git pull origin main
+  cd aws-cicd-Project
 
-            docker stop website || true
-            docker rm website || true
+  git pull origin main
 
-            docker build -t aws-cicd-project .
+  sudo docker stop website || true
+  sudo docker rm website || true
 
-            docker run -d --name website -p 80:80 aws-cicd-project
+  sudo docker build -t aws-cicd-project .
+
+  sudo docker run -d --name website -p 80:80 aws-cicd-project
